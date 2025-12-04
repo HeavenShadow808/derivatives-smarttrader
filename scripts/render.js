@@ -21,10 +21,11 @@ const renderHTML = (html) => {
     return html;
 };
 
-const renderComponent = async (context, path) => {
-    // Use dynamic import to support ES Modules like @deriv-com/translations
-    const module = await import(path);
-    const Component = module.default || module;
+const renderComponent = (context, path) => {
+    // Use require() with absolute path - @babel/register will handle .jsx files
+    // Path is relative to scripts/ directory, so we need to resolve it
+    const absolutePath = Path.resolve(__dirname, path);
+    const Component = require(absolutePath).default || require(absolutePath);
 
     global.it = context;
     return ReactDOMServer.renderToStaticMarkup(
@@ -241,14 +242,14 @@ async function compile(page) {
         };
 
         const context               = context_builder.buildFor(model);
-        const page_html             = await renderComponent(context, `../src/templates/${page.tpl_path}.jsx`);
+        const page_html             = renderComponent(context, `../src/templates/${page.tpl_path}.jsx`);
         const language              = lang.toLowerCase();
         const layout_path           = '../src/templates/_common/_layout/layout.jsx';
 
         if (page.layout) {
-            const layout_normal     = `<!DOCTYPE html>\n${await renderComponent(context, layout_path)}`;
+            const layout_normal     = `<!DOCTYPE html>\n${renderComponent(context, layout_path)}`;
             context.is_pjax_request = true;
-            const layout_pjax       = await renderComponent(context, layout_path);
+            const layout_pjax       = renderComponent(context, layout_path);
 
             // normal layout
             await common.writeFile(
