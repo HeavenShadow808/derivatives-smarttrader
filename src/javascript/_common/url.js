@@ -112,7 +112,17 @@ const Url = (() => {
         return static_host + path.replace(/(^\/)/g, '');
     };
 
-    const deriv_app_domain = `https://home.deriv.${getTopLevelDomain()}`;
+    const getDerivAppDomain = () => {
+        // Handle custom domain (smarttrader.deriv.now)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        if (isCustomDomain) {
+            return 'https://deriv.now';
+        }
+        return `https://home.deriv.${getTopLevelDomain()}`;
+    };
+    
+    // Keep for backward compatibility, but prefer getDerivAppDomain() for dynamic domain detection
+    const deriv_app_domain = getDerivAppDomain();
 
     const getAccountParam = () =>
         Url.param('account') ||
@@ -120,10 +130,12 @@ const Url = (() => {
           ? SessionStore.get('account')
           : '');
 
-    const urlForDeriv = (path, pars) =>
-        `${getAllowedLocalStorageOrigin() || deriv_app_domain}/${path}${
+    const urlForDeriv = (path, pars) => {
+        const baseUrl = getAllowedLocalStorageOrigin() || getDerivAppDomain();
+        return `${baseUrl}/${path}${
             getAccountParam() ? `?account=${getAccountParam().toUpperCase()}` : '?'
         }${pars ? `&${pars}` : ''}`;
+    };
 
     const urlForReports = (path, redirect_url, account_type) => {
         let dtrader_domain;
@@ -140,7 +152,7 @@ const Url = (() => {
     };
 
     const urlForTradersHub = (path, pars) => {
-        const origin = getAllowedLocalStorageOrigin(true) || deriv_app_domain;
+        const origin = getAllowedLocalStorageOrigin(true) || getDerivAppDomain();
         return `${origin}/${path}?${pars ? `${pars}` : ''}`;
     };
 
@@ -194,6 +206,22 @@ const Url = (() => {
     };
 
     const getStaticUrl = () => {
+        // Handle custom domain (smarttrader.deriv.now)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        if (isCustomDomain) {
+            const host = 'https://deriv.now';
+            let lang = Language.get().toLowerCase();
+            if (lang && lang !== 'en') {
+                lang = `/${lang}`;
+            } else {
+                lang = '';
+            }
+            if (lang.includes('_')) {
+                lang = lang.replace('_', '-');
+            }
+            return `${host}${lang}`;
+        }
+        
         const host = 'https://deriv';
         const domain = getTopLevelDomain();
         let lang = Language.get().toLowerCase();

@@ -93,7 +93,11 @@
     
     function onLoad() {
         var btn__home = document.getElementById('btn__home');
-        var home_url = `https://smarttrader.deriv.${getTopLevelDomain()}`;
+        // Handle custom domain (smarttrader.deriv.now)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        var home_url = isCustomDomain 
+            ? 'https://smarttrader.deriv.now'
+            : `https://smarttrader.deriv.${getTopLevelDomain()}`;
         btn__home.href = home_url;
         btn__home.innerHTML = home_url;
     }

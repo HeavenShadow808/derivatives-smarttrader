@@ -77,6 +77,10 @@ const ThirdPartyLinks = (() => {
         } catch (e) {
             return false;
         }
+        // Handle custom domain (smarttrader.deriv.now)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        const isCustomDomainLink = /deriv\.now$/.test(destination.host);
+        
         return !!destination.host
             && !new RegExp(`^.*\\.${getCurrentBinaryDomain() || 'binary\\.com'}$`).test(destination.host) // destination host is not binary subdomain
             // TODO: [app-link-refactor] - Remove backwards compatibility for `deriv.app`
@@ -84,6 +88,7 @@ const ThirdPartyLinks = (() => {
             && !/^.*\\.binary\\.bot$/.test(destination.host) // destination host is not binary subdomain
             && !/www.(betonmarkets|xodds).com/.test(destination.host) // destination host is not binary old domain
             && !/deriv.(app|com)/.test(destination.host) // destination host is not deriv
+            && !(isCustomDomain && isCustomDomainLink) // Allow deriv.now links for custom domain
             && window.location.host !== destination.host;
     };
 

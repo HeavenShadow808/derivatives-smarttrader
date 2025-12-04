@@ -269,9 +269,15 @@ const createContextBuilder = async (sections) => {
     };
 };
 
-const getFilePath = (save_path_template, language, is_pjax) => (
-    save_path_template.replace('/LANG_PLACEHOLDER', `${is_pjax ? '/pjax' : ''}`)
-);
+const getFilePath = (save_path_template, language, is_pjax) => {
+    // Replace LANG_PLACEHOLDER with the actual language code
+    let path = save_path_template.replace('LANG_PLACEHOLDER', language);
+    // If pjax, add /pjax before the language
+    if (is_pjax) {
+        path = path.replace(`/${language}`, `/pjax/${language}`);
+    }
+    return path;
+};
 
 /** **********************************************
  * Compile

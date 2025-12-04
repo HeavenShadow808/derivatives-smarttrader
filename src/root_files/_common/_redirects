@@ -1,4 +1,4 @@
 # Cloudflare Pages redirects
-# Redirect all 404 errors to index.html for SPA routing
+# Redirect all requests to index.html for SPA routing, but preserve the path
 /*    /index.html   200
 
