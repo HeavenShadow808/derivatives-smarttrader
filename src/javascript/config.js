@@ -114,18 +114,11 @@ const getSocketURL = () => {
     let server_url = window.localStorage.getItem('config.server_url');
     
     if (!server_url) {
-        // Get account type
-        const accountType = getAccountType();
-        // Environment-based server selection
-        const isProductionEnv = process.env.NODE_ENV === 'production';
-        
-        if (isProductionEnv) {
-            // Production environment - use v2 servers
-            server_url = accountType === 'real' ? 'realv2.derivws.com' : 'demov2.derivws.com';
-        } else {
-            // Staging environment - use QA servers
-            server_url = accountType === 'real' ? 'qa197.deriv.dev' : 'qa194.deriv.dev';
-        }
+        // According to Deriv API documentation and support:
+        // The correct endpoint is wss://ws.derivws.com/websockets/v3?app_id={app_id}
+        // Whitelisting is not required if using the correct endpoint
+        // Reference: https://developers.deriv.com/docs/websockets
+        server_url = 'ws.derivws.com';
     }
     
     return `wss://${server_url}/websockets/v3`;
