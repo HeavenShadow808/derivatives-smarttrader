@@ -4,18 +4,15 @@
 require('@babel/register')({
     presets: ['@babel/preset-env', '@babel/preset-react'],
     plugins: [
-        ['@babel/plugin-proposal-decorators', { legacy: true }],
-        '@babel/plugin-transform-class-properties',
-        '@babel/plugin-syntax-dynamic-import',
         '@babel/plugin-transform-modules-commonjs',
+        '@babel/plugin-transform-react-jsx',
     ],
     extensions: ['.jsx', '.js'],
-    cache: true,
+    cache     : true,
 });
 
 const React          = require('react');
 const ReactDOMServer = require('../node_modules/react-dom/server.js'); // eslint-disable-line import/order
-const Path           = require('path');
 
 // Simple HTML renderer for server-side rendering
 const renderHTML = (html) => {
@@ -26,10 +23,7 @@ const renderHTML = (html) => {
 };
 
 const renderComponent = (context, path) => {
-    // Use require() with absolute path - @babel/register will handle .jsx files
-    // Path is relative to scripts/ directory, so we need to resolve it
-    const absolutePath = Path.resolve(__dirname, path);
-    const Component = require(absolutePath).default || require(absolutePath);
+    const Component = require(path).default; // eslint-disable-line
 
     global.it = context;
     return ReactDOMServer.renderToStaticMarkup(
@@ -44,6 +38,7 @@ const Spinner        = require('cli-spinner').Spinner;
 const program        = require('commander');
 const Crypto         = require('crypto');
 const fs             = require('fs');
+const Path           = require('path');
 const Url            = require('url');
 const common         = require('./common');
 
