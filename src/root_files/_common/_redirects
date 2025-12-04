@@ -1,5 +1,7 @@
 # Cloudflare Pages redirects
-# Redirect paths without .html to .html version
+# Only redirect paths without .html extension to .html version
+# Files with .html extension will be served directly
 /en/trading         /en/trading.html   301
 /trading            /en/trading.html   301
+# Serve all other files directly (including .html files)
 

@@ -27,6 +27,12 @@
             }
 
             function redirect() {
+                // Don't redirect if already on a trading page
+                var currentPath = window.location.pathname;
+                if (/\/\w{2}\/trading\.html$/.test(currentPath) || /^\/trading\.html$/.test(currentPath)) {
+                    return; // Already on trading page, don't redirect
+                }
+                
                 var search                = window.location.search ? window.location.search : '';
                 var has_external_referrer = document.referrer && !/\.(binary\.(com|me)|deriv\.com)/.test(document.referrer);
                 var has_utm_source        = /utm_source/.test(search);
