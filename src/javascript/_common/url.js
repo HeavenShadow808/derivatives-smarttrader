@@ -148,6 +148,13 @@ const Url = (() => {
         // TODO: [app-link-refactor] - Remove backwards compatibility for `deriv.app`
         const domain_zone = getTopLevelDomain();
         
+        // Handle custom domain (smarttrader.deriv.now)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        if (isCustomDomain) {
+            // Use main app domain for localStorage sharing
+            return is_traders_hub_or_wallet ? 'https://hub.deriv.now' : 'https://deriv.now';
+        }
+        
         if (
             /^smarttrader-staging\.deriv\.app$/i.test(window.location.hostname) ||
             /^staging-smarttrader\.deriv\.com$/i.test(window.location.hostname)

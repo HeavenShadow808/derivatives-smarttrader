@@ -6,6 +6,17 @@ const Language = require('../language');
 
 const Login = (() => {
     const redirectToLogin = () => {
+        // For custom domain, redirect to main app for OAuth (since 1 App ID = 1 redirect URL)
+        const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+        
+        if (isCustomDomain) {
+            // Redirect to main app login, which will handle OAuth and redirect back
+            const currentUrl = encodeURIComponent(window.location.href);
+            const lang = Language.get();
+            window.location.href = `https://deriv.now/redirect?redirect_to=${currentUrl}&lang=${lang}`;
+            return;
+        }
+        
         const baseLoginUrl = getBrandLoginUrl();
         const platformHostname = getPlatformHostname();
         const lang = Language.get();

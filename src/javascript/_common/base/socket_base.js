@@ -219,11 +219,30 @@ const BinarySocketBase = (() => {
         binary_socket.onopen = async () => {
             config.wsEvent('open');
 
+            // Handle OAuth tokens from main app (deriv.now) if available
+            // These tokens are stored in localStorage by redirect.js
+            const storedTokens = localStorage.getItem('config.tokens');
+            let oauthToken = null;
+            if (storedTokens) {
+                try {
+                    const tokens = JSON.parse(storedTokens);
+                    // Use the first token (token1) for authorization
+                    if (tokens.token1) {
+                        oauthToken = tokens.token1;
+                        // Clear stored tokens after use
+                        localStorage.removeItem('config.tokens');
+                    }
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.error('Failed to parse stored OAuth tokens:', e);
+                }
+            }
+
             // Handle token exchange flow if token parameter exists in URL
             const newSessionToken = await handleTokenExchange(tokenParam);
 
-            // Use newly exchanged token if available, otherwise use existing token
-            const sessionToken = newSessionToken || ClientBase.getStoredSessionToken();
+            // Use OAuth token, newly exchanged token, or existing token
+            const sessionToken = oauthToken || newSessionToken || ClientBase.getStoredSessionToken();
             if (sessionToken) {
                 send({ authorize: sessionToken }, { forced: true });
             } else {

@@ -14,6 +14,7 @@ const domain_app_ids = { // these domains also being used in '_common/url.js' as
     'smarttrader.deriv.com'        : 22168,
     'smarttrader.deriv.me'         : 27315,
     'smarttrader.deriv.be'         : 30768,
+    'smarttrader.deriv.now'        : 113298, // Custom domain with your App ID
     'staging-smarttrader.deriv.be' : 31191,
     'staging-smarttrader.deriv.com': 22169,
     'binary.me'                    : 15284,
@@ -35,7 +36,7 @@ const binary_desktop_app_id = 14473;
 
 const getAppId = () => {
     let app_id = null;
-    const user_app_id   = ''; // you can insert Application ID of your registered application here
+    const user_app_id   = '113298'; // you can insert Application ID of your registered application here
     const config_app_id = window.localStorage.getItem('config.app_id');
     const is_new_app    = /\/app\//.test(window.location.pathname);
     

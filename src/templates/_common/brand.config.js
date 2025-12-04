@@ -23,6 +23,21 @@ const getBrandLogo = () => brand_config_data.brand_logo;
 const getBrandDomain = () => brand_config_data.brand_domain;
 // Helper function to build brand URLs with environment detection
 const getBrandUrl = (path = '') => {
+    // For custom domain (smarttrader.deriv.now), use main app for login
+    const isCustomDomain = /smarttrader\.deriv\.now/i.test(window.location.hostname);
+    
+    if (isCustomDomain) {
+        // Redirect to main app for OAuth login (since 1 App ID = 1 redirect URL)
+        // Main app will handle OAuth and redirect back to SmartTrader
+        const mainAppUrl = 'https://deriv.now';
+        if (path === 'login') {
+            // Redirect to main app login, which will redirect back to SmartTrader after login
+            const currentUrl = encodeURIComponent(window.location.href);
+            return `${mainAppUrl}/redirect?redirect_to=${currentUrl}`;
+        }
+        return `${mainAppUrl}${path ? `/${path}` : ''}`;
+    }
+    
     const hostname = isProduction
         ? brand_config_data.brand_hostname.production
         : brand_config_data.brand_hostname.staging;
