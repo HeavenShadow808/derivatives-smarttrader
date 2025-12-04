@@ -12,6 +12,7 @@ require('@babel/register')({
 
 const React          = require('react');
 const ReactDOMServer = require('../node_modules/react-dom/server.js'); // eslint-disable-line import/order
+const Path           = require('path');
 
 // Simple HTML renderer for server-side rendering
 const renderHTML = (html) => {
@@ -40,7 +41,6 @@ const Spinner        = require('cli-spinner').Spinner;
 const program        = require('commander');
 const Crypto         = require('crypto');
 const fs             = require('fs');
-const Path           = require('path');
 const Url            = require('url');
 const common         = require('./common');
 
