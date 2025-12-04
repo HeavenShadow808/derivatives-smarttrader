@@ -5,7 +5,7 @@
         <script type="text/javascript">
             /* hardcode redirect for crawlers */
             if (/ia_archiver|bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent)) {
-                window.location = '/trading.html';
+                window.location = '/en/trading.html';
             }
             if (self === top) {
                 var antiClickjack = document.getElementById("antiClickjack");
@@ -32,13 +32,30 @@
                 var has_utm_source        = /utm_source/.test(search);
                 var utm_source            = has_external_referrer && !has_utm_source ? ((search ? '&' : '?') + 'utm_source=' + new URL(document.referrer).hostname) : '';
                 
-                window.location.href = '/trading.html' + (search || utm_source ? '?' + search.replace(/^\?/, '') + (search && utm_source ? '&' : '') + utm_source.replace(/^\?/, '') : '');
+                // Get language from localStorage or cookie, default to 'en'
+                var storedLang = localStorage.getItem('i18n_language');
+                var cookieLang = getCookieItem('language');
+                var lang = 'en'; // default
+                
+                if (storedLang) {
+                    try {
+                        lang = JSON.parse(storedLang).toLowerCase();
+                    } catch(e) {
+                        lang = storedLang.toLowerCase();
+                    }
+                } else if (cookieLang) {
+                    lang = cookieLang.toLowerCase();
+                }
+                
+                // Redirect to /{lang}/trading.html
+                var tradingPath = lang === 'en' ? '/en/trading.html' : '/' + lang + '/trading.html';
+                window.location.href = tradingPath + (search || utm_source ? '?' + search.replace(/^\?/, '') + (search && utm_source ? '&' : '') + utm_source.replace(/^\?/, '') : '');
             }
 
             // Handle Crowdin in-context translation
             if (/^https:\/\/staging\.binary\.com\/translations\//i.test(window.location.href)) {
                 localStorage.setItem('i18n_language', JSON.stringify('ACH'));
-                window.location.href = '/trading.html';
+                window.location.href = '/en/trading.html';
             } else {
                 // Check if language is already set in localStorage or cookie
                 var storedLang = localStorage.getItem('i18n_language');
