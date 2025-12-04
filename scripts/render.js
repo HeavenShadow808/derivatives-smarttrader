@@ -4,18 +4,23 @@
 // Create a wrapper to handle @deriv-com/translations ES module
 const Module = require('module');
 const originalRequire = Module.prototype.require;
-const translationsCache = {};
+let translationsModulePromise = null;
 
 Module.prototype.require = function(id) {
     if (id === '@deriv-com/translations') {
-        // Return a mock object that will be replaced with actual import at runtime
-        if (!translationsCache[id]) {
-            // This will be handled by async renderComponent with dynamic import
-            translationsCache[id] = {
-                localize: (text) => text, // Fallback function
-            };
+        // Use dynamic import for ES modules
+        if (!translationsModulePromise) {
+            translationsModulePromise = import('@deriv-com/translations').catch(() => ({
+                localize: (text) => text, // Fallback
+            }));
         }
-        return translationsCache[id];
+        // Return a proxy that will resolve the promise
+        const proxy = new Proxy({}, {
+            get(target, prop) {
+                return translationsModulePromise.then(module => module[prop] || module.default?.[prop]);
+            }
+        });
+        return proxy;
     }
     return originalRequire.apply(this, arguments);
 };
@@ -48,32 +53,50 @@ const renderHTML = (html) => {
 };
 
 const renderComponent = async (context, path) => {
-    // Load component and handle @deriv-com/translations ES module
-    let Component;
+    // Pre-load translations module before requiring component
+    const translationsModule = await import('@deriv-com/translations').catch(() => ({
+        localize: (text) => text, // Fallback
+    }));
+    
+    // Temporarily replace require for @deriv-com/translations
+    const Module = require('module');
+    const originalRequire = Module.prototype.require;
+    Module.prototype.require = function(id) {
+        if (id === '@deriv-com/translations') {
+            return translationsModule;
+        }
+        return originalRequire.apply(this, arguments);
+    };
+    
     try {
         // Clear require cache for this path to ensure fresh load
         delete require.cache[require.resolve(path)];
-        Component = require(path).default; // eslint-disable-line
+        const Component = require(path).default; // eslint-disable-line
         
-        // If component uses @deriv-com/translations, we need to handle it
-        // The require wrapper above provides a fallback, but we should use actual translations
-        // For now, the fallback localize function will work for SSR
+        global.it = context;
+        return ReactDOMServer.renderToStaticMarkup(
+            React.createElement(
+                Component
+            )
+        );
     } catch (e) {
         if (e.code === 'ERR_REQUIRE_ESM') {
             // Handle ES module with dynamic import
             const module = await import(path);
-            Component = module.default;
+            const Component = module.default;
+            global.it = context;
+            return ReactDOMServer.renderToStaticMarkup(
+                React.createElement(
+                    Component
+                )
+            );
         } else {
             throw e;
         }
+    } finally {
+        // Restore original require
+        Module.prototype.require = originalRequire;
     }
-
-    global.it = context;
-    return ReactDOMServer.renderToStaticMarkup(
-        React.createElement(
-            Component
-        )
-    );
 };
 
 const color          = require('cli-color');
