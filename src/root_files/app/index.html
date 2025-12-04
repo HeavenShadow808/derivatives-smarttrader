@@ -27,8 +27,16 @@
             }
 
             function redirect() {
-                // Don't redirect if already on a trading page
+                // Only redirect from root path (/) or /index.html
+                // Don't redirect if already on a specific page path
                 var currentPath = window.location.pathname;
+                
+                // If not on root or index.html, don't redirect (let Cloudflare Pages handle it)
+                if (currentPath !== '/' && currentPath !== '/index.html') {
+                    return; // Not root path, don't redirect
+                }
+                
+                // Don't redirect if already on a trading page (safety check)
                 if (/\/\w{2}\/trading\.html$/.test(currentPath) || /^\/trading\.html$/.test(currentPath)) {
                     return; // Already on trading page, don't redirect
                 }
