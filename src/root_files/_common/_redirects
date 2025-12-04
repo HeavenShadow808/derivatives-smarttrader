@@ -1,5 +1,4 @@
 # Cloudflare Pages redirects
-# Redirect paths without .html to .html version (only for HTML routes, not for static assets)
-/en/trading         /en/trading.html   301
-/trading            /en/trading.html   301
+# Removed redirects - let Cloudflare Pages serve files directly
+# Files like /en/trading.html will be served as-is
 
