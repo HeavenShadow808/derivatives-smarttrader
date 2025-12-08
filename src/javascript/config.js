@@ -9,15 +9,17 @@
  *
  */
 const domain_app_ids = { // these domains also being used in '_common/url.js' as supported "production domains"
-    'binary.com'                   : 1,
-    'smarttrader.deriv.app'        : 22168,
-    'smarttrader.deriv.com'        : 22168,
-    'smarttrader.deriv.me'         : 27315,
-    'smarttrader.deriv.be'         : 30768,
-    'staging-smarttrader.deriv.be' : 31191,
+    'binary.com': 1,
+    'smarttrader.deriv.app': 22168,
+    'smarttrader.deriv.com': 22168,
+    'smarttrader.deriv.me': 27315,
+    'smarttrader.deriv.be': 30768,
+    'staging-smarttrader.deriv.be': 31191,
     'staging-smarttrader.deriv.com': 22169,
-    'binary.me'                    : 15284,
-    'deriv.com'                    : 16929,
+    'binary.me': 15284,
+    'deriv.com': 16929,
+    // Custom domain for forked SmartTrader
+    'smarttrader.deriv.now': 113321,
 };
 
 const getCurrentBinaryDomain = () =>
@@ -35,10 +37,10 @@ const binary_desktop_app_id = 14473;
 
 const getAppId = () => {
     let app_id = null;
-    const user_app_id   = ''; // you can insert Application ID of your registered application here
+    const user_app_id = ''; // you can insert Application ID of your registered application here
     const config_app_id = window.localStorage.getItem('config.app_id');
-    const is_new_app    = /\/app\//.test(window.location.pathname);
-    
+    const is_new_app = /\/app\//.test(window.location.pathname);
+
     if (config_app_id) {
         // eslint-disable-next-line no-console
         console.log('Using config_app_id:', config_app_id);
@@ -62,6 +64,10 @@ const getAppId = () => {
     } else if (user_app_id.length) {
         window.localStorage.setItem('config.default_app_id', user_app_id); // it's being used in endpoint chrome extension - please do not remove
         app_id = user_app_id;
+    } else if (/smarttrader\.deriv\.now/i.test(window.location.hostname)) {
+        // Custom domain for forked SmartTrader
+        window.localStorage.removeItem('config.default_app_id');
+        app_id = 113321;
     } else if (/localhost/i.test(window.location.hostname)) {
         app_id = 23709;
     } else {
@@ -84,7 +90,7 @@ const getAccountType = () => {
         // Validate and store
         const validAccountType = ['demo', 'real'].includes(urlAccountType) ? urlAccountType : 'demo';
         window.localStorage.setItem('account_type', validAccountType);
-        
+
         // Clean up URL
         const url = new URL(window.location);
         url.searchParams.delete('account_type');
@@ -92,26 +98,26 @@ const getAccountType = () => {
 
         return validAccountType;
     }
-    
+
     // Check localStorage
     const storedAccountType = window.localStorage.getItem('account_type');
     if (storedAccountType && ['demo', 'real'].includes(storedAccountType)) {
         return storedAccountType;
     }
-    
+
     // Default fallback
     return 'demo';
 };
 
 const getSocketURL = () => {
     let server_url = window.localStorage.getItem('config.server_url');
-    
+
     if (!server_url) {
         // Get account type
         const accountType = getAccountType();
         // Environment-based server selection
         const isProductionEnv = process.env.NODE_ENV === 'production';
-        
+
         if (isProductionEnv) {
             // Production environment - use v2 servers
             server_url = accountType === 'real' ? 'realv2.derivws.com' : 'demov2.derivws.com';
@@ -120,7 +126,7 @@ const getSocketURL = () => {
             server_url = accountType === 'real' ? 'qa197.deriv.dev' : 'qa194.deriv.dev';
         }
     }
-    
+
     return `wss://${server_url}/websockets/v3`;
 };
 
