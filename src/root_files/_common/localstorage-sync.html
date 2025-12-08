@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SmartTrader - LocalStorage Sync</title>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="origin" />
+    <script>
+        /**
+         * LocalStorage Sync for SmartTrader
+         * Receives messages from Deriv Fork (app.deriv.now) to sync login state
+         */
+        window.addEventListener('message', function (message) {
+            // Allowed origins that can send messages
+            var allowed_origins = [
+                'https://app.deriv.now',
+                'https://deriv.now',
+                'https://smarttrader.deriv.now',
+                // Also allow official deriv domains for compatibility
+                'https://app.deriv.com',
+                'https://app.deriv.me',
+                'https://app.deriv.be',
+                'https://hub.deriv.com',
+                'https://hub.deriv.me',
+                'https://hub.deriv.be',
+            ];
+
+            // Check if origin is allowed
+            if (!allowed_origins.includes(message.origin)) {
+                console.log('[SmartTrader Sync] Ignored message from:', message.origin);
+                return;
+            }
+
+            console.log('[SmartTrader Sync] Received message from:', message.origin, message.data);
+
+            // Handle different message types
+            switch (message.data.key) {
+                case 'active_loginid':
+                case 'client.accounts':
+                case 'session_token':
+                case 'config.account1':
+                case 'config.tokens': {
+                    if (localStorage.getItem(message.data.key) !== message.data.value) {
+                        localStorage.setItem(message.data.key, message.data.value);
+                        console.log('[SmartTrader Sync] Stored:', message.data.key);
+                    }
+                    break;
+                }
+                case 'logout': {
+                    // Handle logout
+                    localStorage.removeItem('active_loginid');
+                    localStorage.removeItem('client.accounts');
+                    localStorage.removeItem('session_token');
+                    localStorage.removeItem('config.account1');
+                    localStorage.removeItem('config.tokens');
+                    console.log('[SmartTrader Sync] Logged out');
+                    break;
+                }
+            }
+        });
+    </script>
+</head>
+
+<body></body>
+
+</html>
