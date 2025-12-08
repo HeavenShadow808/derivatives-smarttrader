@@ -1,0 +1,21 @@
+# Cloudflare Pages Redirects
+# Redirect language-prefixed URLs to the actual files
+# SmartTrader outputs files to /dist/*.html, but URLs use /en/*.html
+
+# Language redirects - map /en/page.html to /page.html
+/en/*  /:splat  200
+/de/*  /:splat  200
+/es/*  /:splat  200
+/fr/*  /:splat  200
+/id/*  /:splat  200
+/it/*  /:splat  200
+/pl/*  /:splat  200
+/pt/*  /:splat  200
+/ru/*  /:splat  200
+/th/*  /:splat  200
+/vi/*  /:splat  200
+/zh-cn/*  /:splat  200
+/zh-tw/*  /:splat  200
+
+# SPA fallback for trading page
+/*  /index.html  200
