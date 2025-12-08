@@ -5,8 +5,8 @@ const getPlugins = require('./plugins');
 
 const appConfig = (grunt) => ({
     entry: {
-        // Output binary.min.js for release builds OR when NODE_ENV is production (for CI/CD builds like Cloudflare Pages)
-        [global.is_release || process.env.NODE_ENV === 'production' ? 'binary.min' : 'binary']: path.resolve(PATHS.SRC, 'javascript'),
+        // Always output binary.min.js - required for production HTML
+        'binary.min': path.resolve(PATHS.SRC, 'javascript'),
     },
     output: {
         path: path.resolve(PATHS.DIST, 'js'),

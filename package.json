@@ -8,7 +8,7 @@
     "serve": "grunt serve",
     "start": "grunt start",
     "eslint": "eslint --fix \"src/**/*.jsx\" src/",
-    "prepare": "husky install"
+    "prepare": "node -e \"try { require.resolve('husky') && require('child_process').execSync('husky install') } catch(e) {}\""
   },
   "repository": {
     "type": "git",
